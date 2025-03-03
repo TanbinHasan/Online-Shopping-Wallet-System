@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+  <title>Online Shopping Wallet System</title>
+</head>
+<body>
+
+  <!-- Login Page -->
+  <div id="loginPage" class="page">
+    <h1>Online Shopping Wallet System</h1>
+    <input id="username_input" type="text" placeholder="Enter Username">
+    <input id="password_input" type="password" placeholder="Enter Password">
+    <button id="loginBtn">Log in</button>
+    <button id="registerBtn">Register</button>
+  </div>
+
+  <!-- Register Page -->
+  <div id="registerPage" class="page hidden">
+    <h1>Create Account</h1>
+    <input id="r_username_input" type="text" placeholder="Enter Username">
+    <input id="r_password_input" type="password" placeholder="Enter Password">
+    <input id="confirm_password_input" type="password" placeholder="Confirm Password">
+    <button id="create_account">Create Account</button>
+    <button id="backToLogin">Back to Login</button>
+  </div>
+
+  <!-- Wallet Page -->
+  <div id="walletPage" class="page hidden">
+    <h1>Wallet Dashboard</h1>
+    <p>Balance: <span id="cur_balance">0</span> Taka</p>
+    <input id="cashin" type="number" placeholder="Enter amount >= 500">
+    <button id="cashInBtn">Cash In</button>
+    <input id="cashout" type="number" placeholder="Enter amount to withdraw">
+    <button id="cashOutBtn">Cash Out</button>
+    <button id="buyProducts">Buy Products</button>
+    <button id="logoutBtn">Log Out</button>
+    <p>Session expires in: <span id="session_timer">03:00</span></p>
+    <h3>Transaction History</h3>
+    <ul id="transaction_history"></ul>
+  </div>
+
+  <!-- Product Page -->
+  <div id="productPage" class="page hidden">
+    <h1>Products</h1>
+    <div id="product_items"></div>
+    <input id="product_name" type="text" placeholder="Product Name">
+    <input id="product_price" type="number" placeholder="Product Price">
+    <button id="addProductBtn">Add Product</button>
+    <button id="backToDashboardBtn">Back</button>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
