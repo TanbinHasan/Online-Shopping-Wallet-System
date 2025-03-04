@@ -1,7 +1,6 @@
 const user_info = JSON.parse(localStorage.getItem("store")) || [];
 let active_user = localStorage.getItem("active") || null;
 let product_list = JSON.parse(localStorage.getItem("products")) || [];
-let session_time = 180;
 
 document.addEventListener("DOMContentLoaded", () => {
   document.querySelector("#loginBtn").addEventListener("click", login);
@@ -40,6 +39,7 @@ function login() {
   active_user = username;
   localStorage.setItem("active", active_user);
   showPage("walletPage");
+  localStorage.setItem("currentActiveUserTime", JSON.stringify(Date.now()));
   startSessionTimer();
 }
 
@@ -160,26 +160,26 @@ function updateTransactionHistory() {
     .join("");
 }
 
-function startSessionTimer() {
-  let time = session_time;
-  const timer = setInterval(() => {
-    if (!active_user) {
-      clearInterval(timer);
-      return;
-    }
-    let minutes = Math.floor(time / 60);
-    let seconds = time % 60;
-    document.querySelector("#session_timer").innerText = `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
-    if (time <= 0) {
-      clearInterval(timer);
-      logout();
-    }
-    time--;
-  }, 1000);
-}
-
 function logout() {
   active_user = null;
   localStorage.removeItem("active");
+  localStorage.removeItem("currentActiveUserTime");
   showPage("loginPage");
+}
+
+function startSessionTimer() {
+  let intervalID = setInterval(() => {
+    const now = JSON.parse(localStorage.getItem("currentActiveUserTime")) + 180 * 1000;
+    let dif = now - Date.now();
+    let min = Math.floor(dif / (1000 * 60));
+    let sec = Math.floor((dif - min * 1000 * 60) / 1000);
+    if (min < 10) min = "0" + min;
+    if (sec < 10) sec = "0" + sec;
+    document.querySelector("#session_timer").innerHTML = `${min} min : ${sec} sec`;
+    if (dif <= 0) {
+      clearInterval(intervalID);
+      alert("Session Timer Has Expired. Please Log in again.");
+      logout();
+    }
+  }, 1000);
 }

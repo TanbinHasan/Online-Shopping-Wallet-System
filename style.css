@@ -48,10 +48,6 @@ button:hover {
   background: #5648a1;
 }
 
-.hidden {
-  display: none;
-}
-
 #product_items div {
   background: #f4f4f4;
   padding: 1rem;
@@ -80,4 +76,8 @@ button:hover {
   padding: 10px;
   border-radius: 5px;
   margin-top: 5px;
+}
+
+.hidden {
+  display: none;
 }
