@@ -1,18 +1,29 @@
-const user_info = JSON.parse(localStorage.getItem("store")) || [];
+const user_info = JSON.parse(localStorage.getItem("store") || "[]");
 let active_user = localStorage.getItem("active") || null;
-let product_list = JSON.parse(localStorage.getItem("products")) || [];
+let product_list = JSON.parse(localStorage.getItem("products") || "[]");
 
 document.addEventListener("DOMContentLoaded", () => {
-  document.querySelector("#loginBtn").addEventListener("click", login);
-  document.querySelector("#registerBtn").addEventListener("click", () => showPage("registerPage"));
-  document.querySelector("#create_account").addEventListener("click", register);
-  document.querySelector("#backToLogin").addEventListener("click", () => showPage("loginPage"));
-  document.querySelector("#cashInBtn").addEventListener("click", cashIn);
-  document.querySelector("#cashOutBtn").addEventListener("click", cashOut);
-  document.querySelector("#buyProducts").addEventListener("click", () => showPage("productPage"));
-  document.querySelector("#logoutBtn").addEventListener("click", logout);
-  document.querySelector("#backToDashboardBtn").addEventListener("click", () => showPage("walletPage"));
-  document.querySelector("#addProductBtn").addEventListener("click", addProduct);
+  const loginBtn = document.querySelector("#loginBtn");
+  const registerBtn = document.querySelector("#registerBtn");
+  const createAccountBtn = document.querySelector("#create_account");
+  const backToLoginBtn = document.querySelector("#backToLogin");
+  const cashInBtn = document.querySelector("#cashInBtn");
+  const cashOutBtn = document.querySelector("#cashOutBtn");
+  const buyProductsBtn = document.querySelector("#buyProducts");
+  const logoutBtn = document.querySelector("#logoutBtn");
+  const backToDashboardBtn = document.querySelector("#backToDashboardBtn");
+  const addProductBtn = document.querySelector("#addProductBtn");
+
+  if (loginBtn) loginBtn.addEventListener("click", login);
+  if (registerBtn) registerBtn.addEventListener("click", () => showPage("registerPage"));
+  if (createAccountBtn) createAccountBtn.addEventListener("click", register);
+  if (backToLoginBtn) backToLoginBtn.addEventListener("click", () => showPage("loginPage"));
+  if (cashInBtn) cashInBtn.addEventListener("click", cashIn);
+  if (cashOutBtn) cashOutBtn.addEventListener("click", cashOut);
+  if (buyProductsBtn) buyProductsBtn.addEventListener("click", () => showPage("productPage"));
+  if (logoutBtn) logoutBtn.addEventListener("click", logout);
+  if (backToDashboardBtn) backToDashboardBtn.addEventListener("click", () => showPage("walletPage"));
+  if (addProductBtn) addProductBtn.addEventListener("click", addProduct);
 
   if (active_user) {
     showPage("walletPage");
@@ -24,13 +35,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function showPage(pageId) {
   document.querySelectorAll(".page").forEach((page) => page.classList.add("hidden"));
-  document.querySelector(`#${pageId}`).classList.remove("hidden");
+  const page = document.querySelector(`#${pageId}`);
+  if (page) page.classList.remove("hidden");
   if (pageId === "walletPage") updateWalletBalance();
 }
 
 function login() {
-  const username = document.querySelector("#username_input").value.trim();
-  const password = document.querySelector("#password_input").value;
+  const usernameInput = document.querySelector("#username_input");
+  const passwordInput = document.querySelector("#password_input");
+
+  if (!usernameInput || !passwordInput) return;
+
+  const username = usernameInput.value.trim();
+  const password = passwordInput.value;
+
   const user = user_info.find((u) => u.username === username && u.password === password);
   if (!user) {
     alert("Incorrect username or password.");
@@ -38,15 +56,22 @@ function login() {
   }
   active_user = username;
   localStorage.setItem("active", active_user);
-  showPage("walletPage");
   localStorage.setItem("currentActiveUserTime", JSON.stringify(Date.now()));
+  showPage("walletPage");
   startSessionTimer();
 }
 
 function register() {
-  const username = document.querySelector("#r_username_input").value.trim();
-  const password = document.querySelector("#r_password_input").value;
-  const confirmPassword = document.querySelector("#confirm_password_input").value;
+  const usernameInput = document.querySelector("#r_username_input");
+  const passwordInput = document.querySelector("#r_password_input");
+  const confirmPasswordInput = document.querySelector("#confirm_password_input");
+
+  if (!usernameInput || !passwordInput || !confirmPasswordInput) return;
+
+  const username = usernameInput.value.trim();
+  const password = passwordInput.value;
+  const confirmPassword = confirmPasswordInput.value;
+
   if (!username || !password) {
     alert("Username and password cannot be empty.");
     return;
@@ -66,98 +91,130 @@ function register() {
 }
 
 function cashIn() {
-  const amount = parseFloat(document.querySelector("#cashin").value);
+  const cashInInput = document.querySelector("#cashin");
+  if (!cashInInput) return;
+
+  const amount = parseFloat(cashInInput.value);
   if (isNaN(amount) || amount < 500) {
     alert("Enter a valid amount (minimum 500).");
     return;
   }
   const user = user_info.find((u) => u.username === active_user);
+  if (!user) return;
+
   user.wallet += amount;
   user.transactions.push(`Cash In: +${amount} Taka`);
-  while (user.transactions.length > 5) user.transactions.shift();
+  user.transactions = user.transactions.slice(-5);
   localStorage.setItem("store", JSON.stringify(user_info));
   updateWalletBalance();
   updateTransactionHistory();
 }
 
 function cashOut() {
-  const amount = parseFloat(document.querySelector("#cashout").value);
+  const cashOutInput = document.querySelector("#cashout");
+  if (!cashOutInput) return;
+
+  const amount = parseFloat(cashOutInput.value);
   if (isNaN(amount) || amount <= 0) {
     alert("Enter a valid amount.");
     return;
   }
   const user = user_info.find((u) => u.username === active_user);
-  if (amount > user.wallet) {
+  if (!user || amount > user.wallet) {
     alert("Insufficient balance.");
     return;
   }
   user.wallet -= amount;
   user.transactions.push(`Cash Out: -${amount} Taka`);
-  while (user.transactions.length > 5) user.transactions.shift();
+  user.transactions = user.transactions.slice(-5);
   localStorage.setItem("store", JSON.stringify(user_info));
   updateWalletBalance();
   updateTransactionHistory();
 }
 
 function addProduct() {
-  const name = document.querySelector("#product_name").value.trim();
-  const price = parseFloat(document.querySelector("#product_price").value);
+  const nameInput = document.querySelector("#product_name");
+  const priceInput = document.querySelector("#product_price");
+
+  if (!nameInput || !priceInput) return;
+
+  const name = nameInput.value.trim();
+  const price = parseFloat(priceInput.value);
+
   if (!name || isNaN(price) || price <= 0) {
     alert("Enter valid product details.");
     return;
   }
+
   product_list.push({ name, price });
   localStorage.setItem("products", JSON.stringify(product_list));
-  document.querySelector("#product_name").value = "";
-  document.querySelector("#product_price").value = "";
+
+  nameInput.value = "";
+  priceInput.value = "";
+
   loadProducts();
 }
 
 function loadProducts() {
-  let product_items = document.getElementById("product_items");
-  product_items.innerHTML = "";
+  const productItems = document.getElementById("product_items");
+  if (!productItems) return;
+
+  productItems.innerHTML = "";
   product_list.forEach(({ name, price }) => createProduct(name, price));
 }
 
 function createProduct(name, price) {
-  let product_items = document.getElementById("product_items");
-  let div = document.createElement("div");
-  let span = document.createElement("span");
+  const productItems = document.getElementById("product_items");
+  if (!productItems) return;
+
+  const div = document.createElement("div");
+  const span = document.createElement("span");
   span.innerText = `${name}: ${price} Taka`;
-  let btn = document.createElement("button");
+
+  const btn = document.createElement("button");
   btn.innerText = "Buy";
   btn.addEventListener("click", () => buyProduct(name, price));
 
   div.appendChild(span);
   div.appendChild(btn);
-  product_items.appendChild(div);
+  productItems.appendChild(div);
 }
 
 function buyProduct(name, price) {
   const user = user_info.find((u) => u.username === active_user);
+  if (!user) return;
+
   if (price > user.wallet) {
     alert("Insufficient balance.");
     return;
   }
-  alert(`${name} has purchased successfully.`);
+
+  alert(`${name} has been purchased successfully.`);
   user.wallet -= price;
   user.transactions.push(`Purchased ${name}: -${price} Taka`);
-  while (user.transactions.length > 5) user.transactions.shift();
+  user.transactions = user.transactions.slice(-5);
+
   localStorage.setItem("store", JSON.stringify(user_info));
   updateWalletBalance();
   updateTransactionHistory();
 }
 
 function updateWalletBalance() {
+  const balanceSpan = document.querySelector("#cur_balance");
+  if (!balanceSpan) return;
+
   const user = user_info.find((u) => u.username === active_user);
-  document.querySelector("#cur_balance").innerText = user.wallet;
+  if (user) balanceSpan.innerText = user.wallet;
 }
 
 function updateTransactionHistory() {
+  const historyList = document.querySelector("#transaction_history");
+  if (!historyList) return;
+
   const user = user_info.find((u) => u.username === active_user);
-  document.querySelector("#transaction_history").innerHTML = user.transactions
-    .map((t) => `<li>${t}</li>`)
-    .join("");
+  if (user) {
+    historyList.innerHTML = user.transactions.map((t) => `<li>${t}</li>`).join("");
+  }
 }
 
 function logout() {
@@ -168,18 +225,25 @@ function logout() {
 }
 
 function startSessionTimer() {
-  let intervalID = setInterval(() => {
-    const now = JSON.parse(localStorage.getItem("currentActiveUserTime")) + 180 * 1000;
-    let dif = now - Date.now();
-    let min = Math.floor(dif / (1000 * 60));
-    let sec = Math.floor((dif - min * 1000 * 60) / 1000);
-    if (min < 10) min = "0" + min;
-    if (sec < 10) sec = "0" + sec;
-    document.querySelector("#session_timer").innerHTML = `${min} min : ${sec} sec`;
-    if (dif <= 0) {
-      clearInterval(intervalID);
-      alert("Session Timer Has Expired. Please Log in again.");
+  const sessionTimer = document.querySelector("#session_timer");
+  if (!sessionTimer) return;
+
+  const expirationTime = JSON.parse(localStorage.getItem("currentActiveUserTime")) + 180 * 1000;
+
+  const updateTimer = () => {
+    const remainingTime = expirationTime - Date.now();
+    if (remainingTime <= 0) {
+      clearInterval(timerInterval);
+      alert("Session expired. Please log in again.");
       logout();
+      return;
     }
-  }, 1000);
+
+    const min = String(Math.floor(remainingTime / 60000)).padStart(2, "0");
+    const sec = String(Math.floor((remainingTime % 60000) / 1000)).padStart(2, "0");
+    sessionTimer.innerText = `${min} min : ${sec} sec`;
+  };
+
+  updateTimer();
+  const timerInterval = setInterval(updateTimer, 1000);
 }
